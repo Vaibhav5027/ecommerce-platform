@@ -1,16 +1,17 @@
-name CI Pipeline
+name: CI Pipeline
 
-on
-  push
-    branches [ main, develop ]
-  pull_request
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
 
-jobs
-  build
-    runs-on ubuntu-latest
-    steps
-      - name Checkout code
-        uses actionscheckout@v3
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-      - name Run dummy step
-        run echo ✅ CICD is connected! Workflow is running.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run dummy step
+        run: echo "✅ CICD is connected! Workflow is running."
