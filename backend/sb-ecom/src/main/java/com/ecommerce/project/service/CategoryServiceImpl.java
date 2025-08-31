@@ -18,40 +18,38 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
-
-
     @Override
     public List<Category> getAllCategories() {
-        List<Category> categories=categoryRepository.findAll();
-
+        List<Category> categories = categoryRepository.findAll();
         return categories;
     }
 
     @Override
     public String addCategory(Category category) {
-        Category savedCategory = categoryRepository.save(category);
-        return savedCategory.getCategoryId()>1?"Category added successfully":"Something went wrong!!";
+        try {
+            Category savedCategory = categoryRepository.save(category);
+
+            if (savedCategory.getCategoryId() != null) {
+                return "Category added successfully";
+            } else {
+                return "Category could not be saved!";
+            }
+        } catch (Exception e) {
+            return "Something went wrong while saving category!";
+        }
     }
 
     @Override
     public Category updateCategory(Category category, Long categoryId) {
-        List<Category> categories=categoryRepository.findAll();
-        Optional<Category> savedCategory = categories.stream().filter(c -> c.getCategoryId().equals(categoryId)).findFirst();
-        System.out.println(category.getCategoryName());
-        if(savedCategory.isPresent()){
-            Category category1 = savedCategory.get();
-            category1.setCategoryName(category.getCategoryName());
-            categoryRepository.save(category1);
-            return category1;
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
-        }
+        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        savedCategory.setCategoryName(category.getCategoryName());
+        Category save = categoryRepository.save(savedCategory);
+        return save;
     }
 
     @Override
     public String deleteCategory(Long categoryId) {
-        List<Category> categories=categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
         Category unwantedCategory = categories.stream().filter(c -> c.getCategoryId().equals(categoryId)).findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
         categoryRepository.delete(unwantedCategory);
         return "Category with categoryId: " + categoryId + " deleted successfully !!";
