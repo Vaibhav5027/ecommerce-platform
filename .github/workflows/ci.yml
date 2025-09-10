@@ -31,16 +31,16 @@ jobs:
       # Step 3: Build with Maven (skip tests for now)
       - name: Build project
         run: mvn clean install -DskipTests
-        working-directory: ./backend   # 👈 adjust this if pom.xml is elsewhere
+        working-directory: ./backend/sb-ecom
 
       # Step 4: Package JAR
       - name: Package application
         run: mvn package -DskipTests
-        working-directory: ./backend
+        working-directory: ./backend/sb-ecom
 
       # Step 5: Upload JAR as artifact
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: ecommerce-app
-          path: backend/target/*.jar   # 👈 adjust this path if needed
+          path: backend/sb-ecom/target/*.jar
