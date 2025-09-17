@@ -1,9 +1,9 @@
-package com.ecommerce.project.service;
+package com.ecommerce.project.service.category;
 
 
 
-import com.ecommerce.project.payload.CategoryDTO;
-import com.ecommerce.project.payload.CategoryResponse;
+import com.ecommerce.project.payload.category.CategoryDTO;
+import com.ecommerce.project.payload.category.CategoryResponse;
 import com.ecommerce.project.model.Category;
 
 

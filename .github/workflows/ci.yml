@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
       - "develop"
-      - "feature/**"   # run CI on any feature branch
+      - "feature/**"
   pull_request:
     branches:
       - "main"
@@ -16,11 +16,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Setup JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
@@ -28,19 +26,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Step 3: Build with Maven (skip tests for now)
-      - name: Build project
-        run: mvn clean install -DskipTests
+      - name: Build project (skip tests)
+        run: mvn clean verify -DskipTests
         working-directory: ./backend/sb-ecom
 
-      # Step 4: Package JAR
       - name: Package application
         run: mvn package -DskipTests
         working-directory: ./backend/sb-ecom
 
-      # Step 5: Upload JAR as artifact
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: ecommerce-app
           path: backend/sb-ecom/target/*.jar
+          retention-days: 50

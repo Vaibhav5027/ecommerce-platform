@@ -2,9 +2,10 @@ package com.ecommerce.project.controller;
 
 import com.ecommerce.project.config.CategoryApiConstants;
 import com.ecommerce.project.model.Category;
-import com.ecommerce.project.payload.CategoryDTO;
-import com.ecommerce.project.payload.CategoryResponse;
-import com.ecommerce.project.service.CategoryService;
+import com.ecommerce.project.payload.category.CategoryDTO;
+import com.ecommerce.project.payload.category.CategoryResponse;
+import com.ecommerce.project.payload.product.ProductResponse;
+import com.ecommerce.project.service.category.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import  org.springframework.http.HttpStatus;
@@ -47,4 +48,6 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.OK).body(categoryDTO);
 
     }
+
+
 }
