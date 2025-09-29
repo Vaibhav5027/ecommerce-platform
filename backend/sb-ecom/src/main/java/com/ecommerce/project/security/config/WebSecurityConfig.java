@@ -22,69 +22,78 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+// @EnableMethodSecurity
 public class WebSecurityConfig {
-    @Autowired
-    private AuthenticationEntryPoint unauthorizedHandler;
+  @Autowired private AuthenticationEntryPoint unauthorizedHandler;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+  @Autowired private UserDetailsServiceImpl userDetailsService;
 
+  @Bean
+  AuthTokenFilter authJwtTokenFilter() {
+    return new AuthTokenFilter();
+  }
 
-    @Bean
-    AuthTokenFilter authJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
+  @Bean
+  DaoAuthenticationProvider daoAuthenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    authenticationProvider.setUserDetailsService(userDetailsService);
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    return authenticationProvider;
+  }
 
-    @Bean
-    DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+      throws Exception {
+    return authConfig.getAuthenticationManager();
+  }
 
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable);
+    http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
+    http.sessionManagement(
+        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+    http.authorizeHttpRequests(
+        authorizeRequest ->
+            authorizeRequest
+                .requestMatchers("/api/auth/**")
+                .permitAll()
+                .requestMatchers("/v3/api-docs/**")
+                .permitAll()
+                .requestMatchers("/swagger-ui/**")
+                .permitAll()
+                .requestMatchers("/api/public/**")
+                .permitAll()
+                .requestMatchers("/api/admin/**")
+                .permitAll()
+                .requestMatchers("/api/test/**")
+                .permitAll()
+                .requestMatchers("/images/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated());
+    http.authenticationProvider(daoAuthenticationProvider());
+    http.addFilterBefore(authJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 
-
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-        http.authorizeHttpRequests(
-                authorizeRequest ->
-                        authorizeRequest.requestMatchers("/api/auth/**").permitAll().
-                                requestMatchers("/v3/api-docs/**").permitAll().
-                                requestMatchers("/swagger-ui/**").permitAll().
-                                requestMatchers("/api/public/**").permitAll().
-                                requestMatchers("/api/admin/**").permitAll().
-                                requestMatchers("/api/test/**").permitAll().
-                                requestMatchers("/images/**").permitAll()
-                                .anyRequest().authenticated());
-        http.authenticationProvider(daoAuthenticationProvider());
-        http.addFilterBefore(authJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().requestMatchers("/v2/api-docs",
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web ->
+        web.ignoring()
+            .requestMatchers(
+                "/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources/**",
                 "/configuration/security",
                 "/swagger-ui.html",
                 "/webjars/**"));
-    }
+  }
 }
-
