@@ -26,6 +26,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Run Spotless check
+        run: mvn spotless:check
+        working-directory: ./backend/sb-ecom
+
       - name: Build project (skip tests)
         run: mvn clean verify -DskipTests
         working-directory: ./backend/sb-ecom
