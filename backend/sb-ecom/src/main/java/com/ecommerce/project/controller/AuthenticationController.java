@@ -13,6 +13,8 @@ import com.ecommerce.project.security.response.MessageResponse;
 import com.ecommerce.project.security.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,22 +60,22 @@ public class AuthenticationController {
         }
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         UserDetailsImpl userDetails = (UserDetailsImpl) authenticate.getPrincipal();
-        String jwtToken = jwtUtils.generateJwtToken(userDetails);
+        ResponseCookie cookie = jwtUtils.generateJwtCookie(userDetails);
         List<String> roles = userDetails.getAuthorities().stream().map(role -> role.getAuthority()).toList();
-        UserInfoResponse userInfo = new UserInfoResponse(userDetails.getUserId(), jwtToken, userDetails.getUsername(), roles
+        UserInfoResponse userInfo = new UserInfoResponse(userDetails.getUserId(), cookie.toString(), userDetails.getUsername(), roles
         );
 
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(userInfo);
     }
 
     @PostMapping("/signUp")
     ResponseEntity<?> signUpUser(@Valid @RequestBody SignupRequest signupRequest) {
 
-        if (userRepository.existByUsername(signupRequest.getUsername())) {
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("username already exits"));
         }
 
-        if (userRepository.exitsByEmail(signupRequest.getEmail())) {
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("username already exits"));
         }
         User user = new User(
