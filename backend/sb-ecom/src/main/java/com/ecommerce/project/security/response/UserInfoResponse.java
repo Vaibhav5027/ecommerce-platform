@@ -1,4 +1,4 @@
-package com.ecommerce.project.security.jwt;
+package com.ecommerce.project.security.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,7 +29,7 @@ public class UserInfoResponse {
 
     private List<String> roles;
 
-    public UserInfoResponse(Long userId, String jwtToken, String username, List<String> roles) {
+    public UserInfoResponse(Long userId, String Username, List<String> roles) {
         this.userId = userId;
         this.jwtToken = jwtToken;
         this.username = username;

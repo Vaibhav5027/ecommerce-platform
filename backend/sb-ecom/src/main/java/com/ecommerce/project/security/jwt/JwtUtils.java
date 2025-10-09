@@ -93,4 +93,9 @@ public class JwtUtils {
         }
         return false;
     }
+
+    public ResponseCookie getCleanJwtCookies() {
+        return ResponseCookie.from(jwtCookie, null)
+                .path("/api").build();
+    }
 }
