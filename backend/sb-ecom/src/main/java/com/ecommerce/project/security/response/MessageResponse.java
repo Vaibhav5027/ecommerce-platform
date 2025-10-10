@@ -6,10 +6,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class MessageResponse {
-    String msg;
+  String msg;
 
-    public MessageResponse(String msg) {
-        this.msg = msg;
-    }
-
+  public MessageResponse(String msg) {
+    this.msg = msg;
+  }
 }
